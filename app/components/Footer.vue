@@ -1,5 +1,5 @@
 <template>
-<v-footer class="footer-main-section" padless>
+<v-footer class="footer-main-section" padless style="z-index: 9999;" >
   <v-container class="footer-container">
     <v-row class="footer-row" no-gutters>
 

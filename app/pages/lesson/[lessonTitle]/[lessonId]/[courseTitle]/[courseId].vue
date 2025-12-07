@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useTheme } from 'vuetify'
 import axios from 'axios'
+import { jwtDecode } from 'jwt-decode'
 
 const route = useRoute()
 // --- ESTADO Y DATOS ---
@@ -15,7 +16,7 @@ const openedModules = ref([])
 // Lección actual en visualización
 const currentLesson = ref()
 const showLoginModal = useLoginModal();
-const currentUser = useSession();
+const currentSession = useSession();
 const error = ref('')
 const loading = ref(false)
 const cursoActual = ref(null)
@@ -46,7 +47,11 @@ const getLesson = async (id, courseId) => {
     error.value = ''
     try {
 
-        const {data} = await axios.get(URL_BASE_API + '/v1/public/lessons/' + id + '/' + courseId);
+        const {data} = await axios.get(URL_BASE_API + '/v1/public/lessons/' + id + '/' + courseId,{
+      headers: {
+        Authorization: `${localStorage.getItem('token_type') || 'Bearer'} ${localStorage.getItem('token') || ''}`
+      }
+    });
 
         currentLesson.value = await data.data;
         cursoActual.value = await data.data.course;
@@ -62,7 +67,7 @@ const getLesson = async (id, courseId) => {
             openedModules.value = [moduloEncontrado.title]   // Guardas el título
           }
 
-        if(!currentLesson.value.isFree && !currentUser.value?.name){
+        if(!currentLesson.value.isFree && !cursoActual.value.buyed && !currentSession.value?.name){
           toggleLogin();
         }
         
@@ -105,7 +110,12 @@ onMounted(() => {
         navigateTo('/')
 
     }
+    
+   const token = localStorage.getItem('token') || ''
+        currentSession.value = jwtDecode(token) ?? {}
 
+
+console.log('Mounted lesson page with ID:', currentSession.value);
 })
 
 // Navegación Siguiente/Anterior (Lógica básica secuencial)
@@ -120,7 +130,7 @@ const navigateLesson = (direction) => {
   
   if (newIndex >= 0 && newIndex < allLessons.length) {
     const target = allLessons[newIndex]
-    if(!target.isFree && !currentUser.value?.name){
+    if(!target.isFree || !cursoActual.buyed && !currentSession.value?.name){
           toggleLogin();
         }else{
 
@@ -175,10 +185,9 @@ const copToUsd = (cop, rate) => cop / rate;
 </script>
 
 <template>
-  <v-app theme="dark" class="bg-dark-main" :class="{ 'blurred': showLoginModal }">
-    <LoginModal />
     <!-- HEADER -->
-    <v-app-bar flat color="#1a2024" height="64" class="border-b border-opacity-10">
+    <v-app-bar :class="{ 'blurred': showLoginModal }" flat color="#1a2024" height="54" class="border-b border-opacity-10">
+    <LoginModal />
       <v-container class="d-flex align-center py-0" style="max-width: 1600px;">
         
         <v-btn variant="text" class="text-capitalize font-weight-bold mr-4" color="primary"  @click="navigateTo('/course/' + curso?.id + '/' + curso?.titulo.toLowerCase().replace(/\s+/g, '-'))">
@@ -197,12 +206,12 @@ const copToUsd = (cop, rate) => cop / rate;
         
         <v-spacer></v-spacer>
         
-        <v-btn v-if="!currentUser" variant="elevated" class="text-capitalize elevation-1 ml-2 topbar-login-button mx-2" @click="toggleLogin" v-ripple>
+        <v-btn v-if="!currentSession?.name" variant="elevated" class="text-capitalize elevation-1 ml-2 topbar-login-button mx-2" @click="toggleLogin" v-ripple>
                 <v-icon left small>mdi-login</v-icon>
                 Ingresar
             </v-btn>
-          <p v-else>{{ currentUser?.name }}</p>
-        <v-btn color="secondary" variant="elevated" class="text-capitalize" @click="currentUser ? commentLesson(lesson) : toggleLogin()" >
+          <p class="mx-4" v-else>{{ currentSession?.name }}</p>
+        <v-btn color="secondary" variant="elevated" class="text-capitalize" @click="currentSession?.name ? commentLesson(lesson) : toggleLogin()" >
           <v-icon start icon="mdi-comment-text-outline" size="small"></v-icon>
           Comentar
         </v-btn>
@@ -210,7 +219,7 @@ const copToUsd = (cop, rate) => cop / rate;
     </v-app-bar>
 
     <!-- MAIN CONTENT -->
-    <v-main class="pt-5 mt-5">
+    <v-main class="pt-0" :class="{ 'blurred': showLoginModal }">
       <v-container fluid style="max-width: 1600px;">
         <v-row>
           
@@ -220,7 +229,7 @@ const copToUsd = (cop, rate) => cop / rate;
             <!-- REPRODUCTOR DE VIDEO (16:9 Automático) -->
            <!-- PLAYER PRINCIPAL DE LA LECCIÓN -->
 <!-- HERO SECTION (Diseño 2 columnas como la imagen) -->
-                <div class="mt-4">
+                <div class="mt-0">
                     <v-container>
                      <v-btn
                         icon
@@ -276,34 +285,67 @@ const copToUsd = (cop, rate) => cop / rate;
                                         
                                         <!-- ESTADO 1: Video Reproduciendo -->
                                         <!-- Importante: w-100 h-100 para llenar el v-responsive -->
-                                        <div v-if="videoUrl" class="w-100 h-100">
+                                        <div v-if="videoUrl && (currentLesson.isFree || cursoActual.buyed)" class="w-100 h-100">
                                          <iframe v-if="videoUrl.includes('youtube.com')" :src="videoUrl" class="w-100 h-100 border-0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="Video Player" ></iframe>
                                         <VideoPlayer :src="videoUrl" v-else />
 
                                         </div>
                                         <!-- ESTADO 2: Portada / Overlay -->
                                         <div v-else class="w-100 h-100 position-relative d-flex align-center justify-center">
-                                            <!-- Imagen de fondo -->
-                                            <v-img 
-                                                :src="curso?.imagen"
-                                                cover
-                                                class="w-100 h-100 opacity-60"
-                                                gradient="to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.8)"
-                                            ></v-img>
 
-                                            <!-- Botón Play Centrado -->
-                                            <div class="position-absolute d-flex flex-column align-center" style="z-index: 2">
-                                                <v-btn 
-                                                    icon="mdi-play" 
-                                                    size="x-large" 
-                                                    color="primary" 
-                                                    class="mb-2 pulse-animation"
-                                                    elevation="6"
-                                                    @click="videoPlaying = true"
-                                                ></v-btn>
-                                                <span class="font-weight-bold text-white text-shadow">Vista Previa</span>
-                                            </div>
-                                        </div>
+    <!-- Imagen fondo -->
+    <v-img 
+        :src="curso?.imagen"
+        cover
+        class="w-100 h-100 opacity-70"
+        gradient="to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.8)"
+    ></v-img>
+
+    <!-- SI EL USUARIO NO ESTÁ LOGUEADO -->
+    <div
+      v-if="!currentSession?.id"
+      class="position-absolute d-flex flex-column align-center justify-center text-center px-6"
+      style="z-index: 3"
+    >
+        <v-icon color="white" size="64" class="mb-3">mdi-lock</v-icon>
+
+        <h3 class="text-white font-weight-bold mb-2">Clase Privada</h3>
+
+        <p class="text-white mb-4">
+            Inicia sesión para acceder a este contenido
+        </p>
+
+        <v-btn
+            color="primary"
+            size="large"
+            class="px-8"
+            @click="toggleLogin"
+        >
+            Iniciar Sesión
+        </v-btn>
+    </div>
+
+    <!-- SI ESTÁ LOGUEADO (tu vista previa original) -->
+    <div 
+        v-else
+        class="position-absolute d-flex flex-column align-center"
+        style="z-index: 2"
+    >
+        <v-btn 
+            icon="mdi-play" 
+            size="x-large" 
+            color="primary" 
+            class="mb-2 pulse-animation"
+            elevation="6"
+            @click="videoPlaying = true"
+        ></v-btn>
+
+        <span class="font-weight-bold text-white text-shadow">
+            Vista Previa
+        </span>
+    </div>
+</div>
+
 
                                     </v-responsive>
                                 </v-card>
@@ -464,16 +506,16 @@ const copToUsd = (cop, rate) => cop / rate;
                       v-for="(lesson,index) in module.lessons"
                       :key="index"
                       :value="lesson.id"
-                      @click="lesson.isFree || currentUser ? loadLesson(lesson) : toggleLogin()"
+                      @click="lesson.isFree || cursoActual.buyed ? loadLesson(lesson) : toggleLogin()"
                       class="pl-8 lesson-item"
                       :class="{ 'active-lesson': currentLesson.id === lesson.id }"
                       rounded="0"
                     >
                       <template v-slot:prepend>
                          <v-icon 
-                              :icon="lesson.isFree ? ( lesson.type === 'video' ? 'mdi-play-circle-outline' : 'mdi-play-circle-outline') : ('mdi-lock-outline')" 
+                              :icon="lesson.isFree || cursoActual.buyed ? ( lesson.type === 'video' ? 'mdi-play-circle-outline' : 'mdi-play-circle-outline') : ('mdi-lock-outline')" 
                               size="small" 
-                              :color="lesson.isFree ? 'primary' : 'grey'"
+                              :color="lesson.isFree || cursoActual.buyed ? 'primary' : 'grey'"
                               class="mr-3"
                           >
                           
@@ -502,7 +544,6 @@ const copToUsd = (cop, rate) => cop / rate;
         </v-row>
       </v-container>
     </v-main>
-  </v-app>
 </template>
 
 <style scoped>

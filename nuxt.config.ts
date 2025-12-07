@@ -7,7 +7,7 @@ export default defineNuxtConfig({
     ssr: false,  
     target: 'static', 
     nitro: {
-        preset: 'browser'
+        preset: 'static'
     },
     compatibilityDate: "2025-07-15",
     devtools: { enabled: true },
@@ -54,7 +54,10 @@ export default defineNuxtConfig({
             ],
         },
     },
-    modules: ["notivue/nuxt"],
+    modules: ["notivue/nuxt", 'nuxt-vue3-google-signin'],
+    googleSignIn: {
+        clientId: '258719388133-rhtg60fgf2nkbutnco8o02nbbefd9u0d.apps.googleusercontent.com',
+    },
     notivue: {
         position: "middle-right",
         limit: 4,

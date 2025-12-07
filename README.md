@@ -71,5 +71,6 @@ yarn preview
 # bun
 bun run preview
 ```
+npm run generate --production
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.

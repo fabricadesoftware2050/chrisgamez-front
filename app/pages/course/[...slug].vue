@@ -2,11 +2,10 @@
 
     <div>
         <!-- V-APP es el root obligatorio para Vuetify -->
-        <v-app theme="dark" class="bg-dark-base">
-    <AppBar />
-
+        
             
             <v-main>
+    <AppBar />
 
                 <!-- HERO SECTION (Diseño 2 columnas como la imagen) -->
                 <div class="bg-dark-base py-8">
@@ -103,15 +102,19 @@
                                     <v-divider class="mb-6 border-opacity-25"></v-divider>
 
                                     <!-- Precio -->
-                                    <div class="d-flex align-end mb-4">
+                                    <div class="d-flex align-end mb-4" v-if="cursoActual?.buyed !== true">
                                         <span class="price-tag lh-3 mr-3">COP {{  formatCOP(curso?.precio_actual) }}</span>
                                         <span class="old-price mb-2">{{ formatCOP(curso?.precio_anterior) }}</span>
                                     </div>
 
                                     <!-- Botones de Acción -->
-                                    <WompiPayBtn 
+                                    <WompiPayBtn v-if="cursoActual?.buyed !== true"
                                         :curso="curso"
                                         />
+                                    <v-btn v-else color="green darken-2" class="text-white font-weight-bold" block size="x-large"
+                                        @click="playLesson(curso?.contenido[0]?.lessons[0], curso)">
+                                        Continuar Curso
+                                    </v-btn>
 
 
                                     <div class="d-flex justify-space-between text-caption text-grey mt-4">
@@ -170,11 +173,11 @@
                                         <v-list density="compact" bg-color="transparent">
                                             <v-list-item v-for="(lesson, j) in module.lessons" :key="j" class="px-2"
                                                 link
-                                                @click="lesson.isFree || currentUser ? playLesson(lesson, curso) : toggleLogin()">
+                                                @click="lesson.isFree || cursoActual?.buyed ? playLesson(lesson, curso) : toggleLogin()">
                                                 <template v-slot:prepend>
                                                     <v-icon
-                                                        :icon="lesson.isFree ? 'mdi-play-circle-outline' : 'mdi-lock-outline'"
-                                                        size="small" :color="lesson.isFree ? 'yellow' : 'red lighten-1'"
+                                                        :icon="lesson.isFree || cursoActual?.buyed ? 'mdi-play-circle-outline' : 'mdi-lock-outline'"
+                                                        size="small" :color="lesson.isFree || cursoActual?.buyed ? 'yellow' : 'red lighten-1'"
                                                         class="mr-3"></v-icon>
                                                 </template>
 
@@ -218,7 +221,7 @@
             <!-- FOOTER STICKY (COMO EN LA IMAGEN) -->
             <!-- Solo visible si la pantalla es pequeña o si queremos que esté siempre fijo abajo -->
             <div class="sticky-purchase-bar py-3 px-4">
-                <v-container class="py-0">
+                <v-container class="py-0 mb-10">
                     <v-row align="center" justify="space-between">
                         <!-- Left: Info del curso (Oculto en móvil) -->
                         <v-col cols="0" md="6" class="d-none d-md-flex flex-column">
@@ -233,7 +236,7 @@
 
                         <!-- Right: Precio y Botones -->
                         <v-col cols="12" md="6" class="d-flex align-center justify-end">
-                            <div class="d-flex flex-column align-end mr-4">
+                            <div class="d-flex flex-column align-end mr-4" v-if="cursoActual?.buyed !== true">
                                 <span class="text-h6 font-weight-bold text-green lh-1">{{ formatCOP(cursoActual?.precio_actual|| 0) }}</span>
                                 <span class="text-caption text-green">USD {{ formatCOP(copToUsd(cursoActual?.precio_anterior|| 0)) }}</span>
                             </div>
@@ -241,15 +244,19 @@
                             <v-btn variant="outlined" color="grey-lighten-1" class="mr-2 d-none d-sm-flex"
                                 icon="mdi-heart-outline"></v-btn>
 
-                            <WompiPayBtn v-if="!loading" 
+                            <WompiPayBtn v-if="!loading && cursoActual?.buyed !== true" 
                                 :curso="cursoActual"
                                 />
+                            <v-btn v-else color="green darken-2" class="text-white font-weight-bold"
+                                >
+                                {{ cursoActual?.buyed === true ? 'Continuar curso' : 'Cargando...' }}
+                            </v-btn>
                         </v-col>
                     </v-row>
                 </v-container>
             </div>
 
-        </v-app>
+       
     </div>
 </template>
 <style>
@@ -331,46 +338,6 @@ const panel = ref([0]) // El primer módulo abierto por defecto
 // NUEVO: Estado para controlar el video
 const videoPlaying = ref(false)
 
-// Datos Simulados (Mock Data)
-const syllabus = ref([
-    {
-        title: 'Módulo 1: Fundamentos de JS y Entorno',
-        duration: '1h 30m',
-        lessons: [
-            { title: '1.1 Introducción y Configuración', time: '5m', isFree: true },
-            { title: '1.2 Tipos de Datos Primitivos', time: '10m', isFree: true },
-            { title: '1.3 Variables (const, let)', time: '8m', isFree: true },
-            { title: '1.4 Operadores y Lógica Booleana', time: '12m', isFree: false },
-        ]
-    },
-    {
-        title: 'Módulo 2: Control de Flujo y Funciones',
-        duration: '2h 15m',
-        lessons: [
-            { title: '2.1 If, Else y Switch', time: '15m', isFree: false },
-            { title: '2.2 Ciclos (For, While)', time: '20m', isFree: false },
-            { title: '2.3 Funciones y Arrow Functions', time: '25m', isFree: false },
-            { title: '2.4 Scope y Hoisting', time: '15m', isFree: false },
-        ]
-    },
-    {
-        title: 'Módulo 3: Asincronía Avanzada',
-        duration: '1h 45m',
-        lessons: [
-            { title: '3.1 Callbacks vs Promesas', time: '20m', isFree: false },
-            { title: '3.2 Async / Await a profundidad', time: '25m', isFree: false },
-            { title: '3.3 Event Loop explicado', time: '15m', isFree: false },
-        ]
-    },
-    {
-        title: 'Módulo 4: DOM y Eventos',
-        duration: '2h 10m',
-        lessons: [
-            { title: '4.1 Seleccionando elementos', time: '10m', isFree: false },
-            { title: '4.2 Manipulación del DOM', time: '30m', isFree: false },
-        ]
-    }
-])
 
 const expandAll = () => {
     // Lógica simple para expandir todos los paneles
@@ -380,12 +347,13 @@ const expandAll = () => {
 
 
 const showLoginModal = useLoginModal();
-const currentUser = useSession();
+const currentSession = useSession();
 const error = ref('')
-const loading = ref(false)
 const cursoActual = ref(null)
 const route = useRoute()
-
+const loading = ref(false);
+const token = ref('')
+const token_type = ref('')
 
 function toggleLogin() {
     showLoginModal.value = !showLoginModal.value;
@@ -394,8 +362,13 @@ const getCourse = async (url) => {
     loading.value = true
     error.value = ''
     try {
-
-        const { data } = await axios.get(url)
+        token.value = localStorage.getItem('token') || ''
+        token_type.value = localStorage.getItem('token_type') || ''
+        const { data } = await axios.get(url, {
+            headers: {
+                Authorization: `${token_type.value || 'Bearer'} ${token.value || ''}`
+            }
+        })
 
         cursoActual.value = data.data;
     } catch (err) {
@@ -430,7 +403,7 @@ onMounted(() => {
         navigateTo('/')
 
     }
-
+  
     window.addEventListener("keydown", (e) => {
         if (
             e.key === "F12" ||

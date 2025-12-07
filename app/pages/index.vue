@@ -1,19 +1,17 @@
 <template>
-  <v-app theme="dark" class="bg-black">
-<AppBar/>
+    <div  class="position-relative" :class="{ 'blurred': showLoginModal }">
     <div class="blob blob-blue top-right"></div>
     <div class="blob blob-cyan bottom-left"></div>
-    <v-main class="position-relative" :class="{ 'blurred': showLoginModal }">
+<AppBar/>
       
-      <v-container class=" pb-10 position-relative" style="z-index: 2;">
+      <v-container class=" pb-10 position-relative" >
         <v-row align="center" justify="space-between">
           <v-col cols="12" md="7">
             <v-chip
               variant="outlined"
               color="cyan-accent-2"
               class="mb-6 font-weight-bold"
-              style="border-color: #18FFFF;"
-            >
+              style="border-color: #18FFFF;">
               <v-icon start icon="mdi-code-braces" size="small"></v-icon>
               Nuevos cursos disponibles
             </v-chip>
@@ -268,9 +266,8 @@
       </v-container>
 
       <v-spacer class="py-10"></v-spacer>
-      <Footer/>
-    </v-main>
-  </v-app>
+      
+    </div>
 </template>
 
 <script setup>

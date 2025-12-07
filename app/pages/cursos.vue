@@ -1,9 +1,9 @@
 <template>
 
-    <AppBar  />
     
-    <v-main :class="{ 'blurred': showLoginModal }">
-        <v-container class="pt-10 pb-12" style="max-width: 1200px;">
+    
+    <AppBar  />
+        <v-container class="pt-10 pb-12" style="max-width: 1200px;" :class="{ 'blurred': showLoginModal }">
 
 
             <div class="static-header">
@@ -130,9 +130,8 @@
 
 
         </v-container>
-    </v-main>
+   
 
-    <Footer />
 </template>
 
 <script setup>

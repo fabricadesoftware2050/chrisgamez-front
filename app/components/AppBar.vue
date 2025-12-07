@@ -48,17 +48,16 @@
           Publicaciones
         </v-btn>
 
-        <v-btn 
-          variant="text" 
-          class="text-capitalize text-body-1 font-weight-regular text-grey-lighten-1" 
-        >
-          Sobre mí
-        </v-btn>
       </div>
 
       <v-spacer class="hidden-sm-and-down"></v-spacer>
 
+<v-btn         v-if="currentSession?.name"
+ variant="outlined" to="/escritorio"  class="text-capitalize font-weight-bold mx-4">
+          Mi Aprendizaje
+        </v-btn>
       <v-btn 
+        v-if="!currentSession?.name"
         variant="flat" 
         color="white"
         class="text-capitalize font-weight-bold ml-4 text-black px-6" 
@@ -69,6 +68,29 @@
         Ingresar
       </v-btn>
 
+      <v-btn 
+      v-if="currentSession?.name"
+          color="primary-custom" 
+          variant="flat" 
+          class="text-capitalize text-white font-weight-bold"
+          prepend-icon="mdi-account-circle"
+        >
+          {{ currentSession?.name }}
+        </v-btn>
+        <v-btn 
+          v-if="currentSession?.name"
+          @click="logout"
+          color="red lighten-1" 
+          variant="flat" 
+          class="text-capitalize text-white font-weight-bold mx-4"
+          prepend-icon="mdi-logout"
+        >
+          Salir
+        </v-btn>
+
+
+        
+
     </v-container>
   </v-app-bar>
 
@@ -76,11 +98,28 @@
 </template>
 
 <script setup>
-const showLoginModal = useLoginModal();
+import { jwtDecode } from 'jwt-decode';
+import { push } from 'notivue'
+import { useRouter } from 'vue-router'
 
+const showLoginModal = useLoginModal();
+const currentSession = useSession();
+const router = useRouter()
 function toggleLogin() {
   showLoginModal.value = !showLoginModal.value;
 }
+
+const logout = () => {
+  localStorage.clear();
+  currentSession.value = {};
+  router.push('/')
+};
+
+onMounted(() => {
+   const token = localStorage.getItem('token') || ''
+       // currentSession.value = jwtDecode(token) ?? {}
+
+});
 </script>
 
 <style scoped>

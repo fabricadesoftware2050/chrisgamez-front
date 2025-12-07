@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  
     <v-container class="d-flex flex-column align-center justify-center text-center" style="height:100vh;">
           <AppBar />
 
@@ -18,7 +18,7 @@
       </v-btn>
 
     </v-container>
-  </v-app>
+ 
 </template>
 
 <script setup>
