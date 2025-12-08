@@ -37,7 +37,7 @@
             <v-card v-else class="stat-card pa-4 rounded-lg bg-card-dark" elevation="0" style="height: fit-content;">
               <div class="d-flex justify-space-between align-center">
                 <div>
-                  <p class="text-h4 text-amber font-weight-bold mb-0">{{ stats.hoursSpent }}h</p>
+                  <p class="text-h4 text-amber font-weight-bold mb-0">{{ totalHorasVistas }}h</p>
                   <p class="text-subtitle-2 text-grey-lighten-1 mb-0">Horas Dedicadas</p>
                 </div>
                 <v-icon size="48" color="#FFC107">mdi-clock-time-three-outline</v-icon>
@@ -51,7 +51,7 @@
             <v-card v-else class="stat-card pa-4 rounded-lg bg-card-dark" elevation="0" style="height: fit-content;">
               <div class="d-flex justify-space-between align-center">
                 <div>
-                  <p class="text-h4 text-secondary-custom font-weight-bold mb-0">{{ stats.completedCourses }}</p>
+                  <p class="text-h4 text-secondary-custom font-weight-bold mb-0">{{ cursosCompletados?.length }}</p>
                   <p class="text-subtitle-2 text-grey-lighten-1 mb-0">Certificados</p>
                 </div>
                 <v-icon size="48" color="#DC143C">mdi-seal-variant</v-icon>
@@ -60,7 +60,7 @@
           </v-col>
         </v-row>
 
-        <h2 class="text-h5 font-weight-bold mb-4 pl-1">Cursos en Progreso {{ coursesInProgress?.length || '' }}</h2>
+        <h2 class="text-h5 font-weight-bold mb-4 pl-1">Mis Cursos {{ coursesInProgress?.length || '' }}</h2>
           <v-skeleton-loader v-if="loading" type="paragraph"></v-skeleton-loader>
         <v-row  v-else>
 
@@ -84,17 +84,20 @@
                   <div class="text-caption text-grey mb-2 text-truncate">
                     Próxima: {{ course.contenido[0].title }}
                   </div>
+                  <div class="text-caption text-grey mb-2 text-truncate">
+                    Has visto: <strong>{{ course.horas_vistas }}</strong> horas de {{ course.duracion }} totales
+                  </div>
                   
                   <div class="d-flex align-center gap-2">
                     <v-progress-linear
-                      :model-value="100 * (50 / 100)"
+                      :model-value="course.progreso"
                       color="#00B894"
                       bg-color="grey-darken-3"
                       height="6"
                       rounded
                       class="flex-grow-1"
                     ></v-progress-linear>
-                    <span class="text-caption font-weight-bold ml-2">{{ 50 }}%</span>
+                    <span class="text-caption font-weight-bold ml-2">{{ course.progreso }}%</span>
                   </div>
                 </div>
 
@@ -112,23 +115,32 @@
           </v-col>
         </v-row>
 
-        <h2 class="text-h5 font-weight-bold mt-10 mb-4 pl-1">Finalizados ({{ completedCourses?.length }})</h2>
+        <h2 class="text-h5 font-weight-bold mt-10 mb-4 pl-1">Finalizados ({{ cursosCompletados?.length }})</h2>
         <v-card class="bg-card-dark rounded-lg" elevation="0" style="height: fit-content;">
           <v-list bg-color="transparent">
-            <v-list-item
-              v-for="course in completedCourses"
+            <v-list-item v-if="cursosCompletados?.length > 0"
+              v-for="course in cursosCompletados"
               :key="course?.id"
               class="completed-list-item mb-1 py-3"
             >
               <template v-slot:prepend>
                 <v-icon color="#66BB6A" class="mr-4">mdi-check-decagram</v-icon>
+                <v-img 
+                  :src="course.imagen" 
+                  height="80" 
+                  width="250" 
+                  max-width="120"
+                  cover 
+                  class="rounded-lg mr-4 flex-shrink-0"
+                ></v-img>
               </template>
+              
 
               <v-list-item-title class="font-weight-medium">
-                {{ course?.title }}
+                {{ course?.titulo }}
               </v-list-item-title>
               <v-list-item-subtitle class="text-caption text-grey mt-1">
-                Completado el {{ course?.completionDate }}
+                Completado el <strong>{{ course.horas_vistas }}</strong> horas vistas
               </v-list-item-subtitle>
 
               <template v-slot:append>
@@ -137,6 +149,7 @@
                 </v-btn>
               </template>
             </v-list-item>
+            <v-alert color="info" v-else>Aún no hay cursos finalizados.</v-alert>
           </v-list>
         </v-card>
 
@@ -192,6 +205,25 @@ const getMisCursos = async () => {
 
     }
 }
+
+const totalHorasVistas = computed(() => {
+  if (!coursesInProgress.value) return 0
+
+  return coursesInProgress.value.reduce((acc, curso) => {
+    return acc + (curso.horas_vistas || 0)
+  }, 0).toFixed(2)
+})
+
+const cursosCompletados = computed(() => {
+  if (!coursesInProgress.value) return 0
+
+  return coursesInProgress.value.filter(
+    curso => Number(curso.progreso) === 100
+  )
+})
+
+
+
 onMounted(() => {
     try {
       token.value = localStorage.getItem('token') || ''

@@ -41,83 +41,110 @@
             
         ></v-skeleton-loader>
         </v-col>
-                <v-col v-else v-for="curso in cursosFiltrados" :key="curso.id" cols="12" sm="6" md="4" lg="4">
+                <v-col v-for="curso in cursosFiltrados" :key="curso.id" cols="12" sm="6" md="4" lg="4">
 
-                    <v-card class="course-card-light rounded-lg elevation-8 d-flex flex-column fill-height"
-                        @click="iniciarCurso(curso)">
+  <v-card 
+    class="master-card rounded-sm d-flex flex-column fill-height overflow-hidden"
+    elevation="0"
+    @click="iniciarCurso(curso)"
+  >
+    
+    <div class="img-wrapper relative overflow-hidden">
+        <v-img 
+          :src="curso.imagen" 
+          height="200px" 
+          cover 
+          class="course-image transition-swing"
+        >
+            <div class="gradient-overlay fill-height w-100 absolute"></div>
 
-                        <v-img 
-                :src="curso.imagen" 
-                height="160px" 
-                cover 
-                class="rounded-t-lg align-center justify-center d-flex flex-grow-0"
-              >
-                  <div v-if="false" style="position: absolute; top: 8px; left: 8px; display: flex; gap: 4px;">
-                      <v-chip small color="primary" dark class="font-weight-bold">{{ curso.nivel }}</v-chip>
-                      <v-chip small color="grey lighten-1" class="font-weight-medium grey--text text--darken-3">
-                          {{ curso.categoria }}
-                      </v-chip>
-                  </div>
-                  <div class="play-overlay">
-                      <v-icon>mdi-play-circle</v-icon>
-                  </div>
-              </v-img>
+            <div class="d-flex justify-space-between w-100 px-4 pt-4 absolute" style="z-index: 2;">
+                <v-chip label x-small color="white" text-color="black" class="font-weight-bold elevation-2">
+                    {{ curso.categoria }}
+                </v-chip>
+                
+                <div class="level-badge d-flex align-center px-2 py-1 rounded-pill backdrop-blur">
+                   <v-icon x-small color="warning" class="mr-1">mdi-star</v-icon>
+                   <span class="white--text caption font-weight-bold">{{ curso.nivel }}</span>
+                </div>
+            </div>
 
-                        <div class="px-4 py-2 text-caption font-weight-regular progress-bg">
-                            <v-progress-linear :value="curso?.progreso" color="secondary" rounded
-                                class="mb-1"></v-progress-linear>
-                            <span class="d-block text-center mb-1">
-                                {{ ((curso.leccionesCompletadas || 0) / curso.totalLecciones * 100).toFixed(0) || 0 }}%
-                                <span v-if="curso.progreso === 0">Inicia sesión para registrar tu progreso</span><span
-                                    v-else>Completado</span>
-                            </span>
-                            <div class="d-flex justify-space-between text--secondary">
-                                <span>{{ curso.totalLecciones }} lecciones</span>
-                                |<span>Duración: {{ curso.duracion }}</span>
-                            </div>
-                        </div>
+            <div class="play-centered absolute d-flex align-center justify-center w-100 h-100" style="top:0; left:0; z-index: 1;">
+                <div class="play-pulse-circle d-flex align-center justify-center">
+                    <v-icon large color="white" style="margin-left: 2px;">mdi-play</v-icon>
+                </div>
+            </div>
+        </v-img>
+    </div>
 
-                        <v-card-text class="pb-2">
+    <div class="d-flex flex-column flex-grow-1 px-5 pt-5 pb-2">
+        
+        <h3 class="text-h6 font-weight-black mb-2 title-clamp" style="color: #1a202c; line-height: 1.25;">
+            {{ curso.titulo }}
+        </h3>
 
-                            <p class="text-h6 font-weight-bold title-text mb-2">
-                                {{ curso.titulo }}
-                            </p>
+        <div class="d-flex align-center mb-3">
+             <div class="d-flex align-center mr-4 meta-item">
+                <v-icon small color="primary" class="mr-1 opacity-70">mdi-play-box-outline</v-icon>
+                <span class="text-caption font-weight-medium grey--text text--darken-2">{{ curso.totalLecciones }} lecciones</span>
+             </div>
+             <div class="d-flex align-center meta-item">
+                <v-icon small color="primary" class="mr-1 opacity-70">mdi-clock-time-four-outline</v-icon>
+                <span class="text-caption font-weight-medium grey--text text--darken-2">{{ curso.duracion }}</span>
+             </div>
+        </div>
 
-                            <p class="description-text mb-4">
-                                {{ curso.descripcion }}
-                            </p>
+        <p class="text-body-2 grey--text text--darken-1 flex-grow-1">
+            {{ curso.descripcion }}
+        </p>
+    </div>
 
-                            <v-spacer></v-spacer>
+    <div class="px-5 pb-5 pt-2 mt-auto">
+        <v-divider class="mb-4 dashed-border"></v-divider>
+        
+        <div class="d-flex flex-column">
+            
+            <div class="d-flex align-baseline justify-space-between mb-3 px-1">
+                <span class="text-caption font-weight-bold grey--text text--lighten-1 text-uppercase ls-1">Inversión</span>
+                
+                <div class="text-right">
+                    <template v-if="formatCOP(curso.precio_actual) === 0">
+                         <span class="text-h6 font-weight-black green--text text--accent-4">
+                            100% GRATIS
+                         </span>
+                    </template>
+                    <template v-else>
+                         <span v-if="curso.precio_anterior" class="text-caption text-decoration-line-through grey--text mr-2">
+                            {{ formatCOP(curso.precio_anterior) }}
+                         </span>
+                         <span class="text-h6 font-weight-bold primary--text">
+                            COP {{ formatCOP(curso.precio_actual) }}
+                         </span>
+                    </template>
+                </div>
+            </div>
 
-                            <div class="d-flex align-center justify-space-between pt-2">
-                                <div class="d-flex text-caption">
-                                    <span class="mr-3 text-black">
-                                        <v-icon small left class="footer-icon">mdi-counter</v-icon>
-                                        {{ curso.leccionesCompletadas || 0 }}/{{ curso.totalLecciones }}
-                                    </span>
-                                </div>
+            <v-btn
+                block
+                large
+                elevation="4"
+                :color="formatCOP(curso.precio_actual) === 0 ? '#00C853' : 'primary'"
+                class="white--text font-weight-bold rounded-lg py-6 glow-button transition-scale"
+                @click.stop="iniciarCurso(curso)"
+            >
+                <span class="mr-2 text-uppercase ls-1" style="font-size: 0.95rem;">
+                    Iniciar Gratis
+                </span>
+                <v-icon small right>
+                    mdi-play-circle
+                </v-icon>
+            </v-btn>
 
-                                <div class="price-area">
-                                    <span v-if="formatCOP(curso.precio_actual) === 0" class="price-free">FREE</span>
-                                    <div v-else class="text-right">
-                                        <span class="current-price-footer">COP {{ formatCOP(curso.precio_actual || 0) }}</span>
-                                        <span class="old-price-footer ml-1 d-block">{{ formatCOP(curso.precio_anterior || 0) }}</span>
-                                    </div>
-                                </div>
+        </div>
+    </div>
 
-                                <v-btn color="primary" small
-                                    class="text-capitalize font-weight-bold white--text elevation-2 action-button"
-                                    @click.stop="iniciarCurso(curso)" v-ripple>
-                                    <v-icon left small>
-                                        mdi-play-circle-outline
-                                    </v-icon>
-                                    Comenzar Curso
-                                </v-btn>
-                            </div>
-
-                        </v-card-text>
-                    </v-card>
-                </v-col>
+  </v-card>
+</v-col>
             </v-row>
 
             
@@ -206,9 +233,9 @@ const getCourseList = async (url) => {
 
         const {data} = await axios.get(url)
 
-        cursosList.value = data.data;
+        cursosList.value = data.data.data;
 
-        cursosResponse.value = data;
+        cursosResponse.value = data.data;
     } catch (err) {
 
         error.value = err.response?.data?.message || 'Intenta nuevamente'
@@ -267,7 +294,105 @@ watch(busqueda, () => (paginaActual.value = 1))
 
 <style>
 
+/* --- 1. Tarjeta General --- */
+.master-card {
+  background: white;
+  color: #263238;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Efecto rebote muy sutil */
+}
 
+.master-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1) !important;
+  border-color: transparent;
+}
+
+
+
+.course-image {
+  transition: transform 0.6s ease;
+}
+
+.master-card:hover .course-image {
+  transform: scale(1.08); /* Zoom lento */
+}
+
+.gradient-overlay {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.6) 100%);
+}
+
+.backdrop-blur {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+/* --- 3. Botón Play con Pulso --- */
+.play-pulse-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 10%;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  transition: all 0.3s ease;
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Animación al hacer hover en la tarjeta */
+.master-card:hover .play-pulse-circle {
+  background: var(--v-primary-base); /* Cambia al color primario */
+  border-color: var(--v-primary-base);
+  transform: scale(1.1);
+  box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.2); /* Efecto de onda */
+}
+
+/* --- 4. Texto --- */
+.title-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.desc-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5;
+}
+
+.ls-1 {
+  letter-spacing: 1px !important;
+}
+
+/* --- 5. Botón Glow (Brillo) --- */
+.glow-button {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Brillo interior */
+.glow-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: 0.5s;
+}
+
+.master-card:hover .glow-button::after {
+  left: 100%; /* Efecto de luz pasando por el botón */
+}
+
+.dashed-border {
+  border-color: rgba(0,0,0,0.08) !important;
+  border-style: dashed;
+}
 /* --- Animación 3D y Levantamiento de Cards --- */
 .course-card-light {
     transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);

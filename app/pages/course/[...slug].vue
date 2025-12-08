@@ -4,11 +4,11 @@
         <!-- V-APP es el root obligatorio para Vuetify -->
         
             
-            <v-main>
+            
     <AppBar />
 
                 <!-- HERO SECTION (Diseño 2 columnas como la imagen) -->
-                <div class="bg-dark-base py-8">
+                <div class="bg-dark-base py-5">
                     <v-container>
                         <v-row v-if="loading">
                             <!-- Izquierda: portada del curso -->
@@ -51,12 +51,11 @@
 
                                         <!-- ESTADO 1: Video Reproduciendo -->
                                         <!-- Importante: w-100 h-100 para llenar el v-responsive -->
-                                        <iframe v-if="videoPlaying"
-                                            :src="`https://www.dailymotion.com/embed/video/${curso?.url_video_intro}?autoplay=1&ui-logo=0&sharing-enable=0&queue-enable=0`"
-                                            class="w-100 h-100 border-0"
-                                            allow="autoplay; fullscreen; picture-in-picture" allowfullscreen
-                                            title="Video Player"></iframe>
+                                        <div v-if="curso?.url_video_intro" class="w-100 h-100">
+                                         <iframe v-if="curso?.url_video_intro.includes('youtube.com')" :src="curso?.url_video_intro" class="w-100 h-100 border-0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="Video Player" ></iframe>
+                                        <VideoPlayer :src="curso?.url_video_intro" v-else />
 
+                                        </div>
                                         <!-- ESTADO 2: Portada / Overlay -->
                                         <div v-else
                                             class="w-100 h-100 position-relative d-flex align-center justify-center">
@@ -216,7 +215,7 @@
 
                     </v-window>
                 </v-container>
-            </v-main>
+            
 
             <!-- FOOTER STICKY (COMO EN LA IMAGEN) -->
             <!-- Solo visible si la pantalla es pequeña o si queremos que esté siempre fijo abajo -->
@@ -238,7 +237,7 @@
                         <v-col cols="12" md="6" class="d-flex align-center justify-end">
                             <div class="d-flex flex-column align-end mr-4" v-if="cursoActual?.buyed !== true">
                                 <span class="text-h6 font-weight-bold text-green lh-1">{{ formatCOP(cursoActual?.precio_actual|| 0) }}</span>
-                                <span class="text-caption text-green">USD {{ formatCOP(copToUsd(cursoActual?.precio_anterior|| 0)) }}</span>
+                                <span class="text-h8 text-green">USD {{ formatCOP(copToUsd(cursoActual?.precio_anterior|| 0)) }}</span>
                             </div>
 
                             <v-btn variant="outlined" color="grey-lighten-1" class="mr-2 d-none d-sm-flex"
@@ -248,9 +247,10 @@
                                 :curso="cursoActual"
                                 />
                             <v-btn v-else color="green darken-2" class="text-white font-weight-bold"
-                                >
+                                 @click="playLesson(curso?.contenido[0]?.lessons[0], curso)">
                                 {{ cursoActual?.buyed === true ? 'Continuar curso' : 'Cargando...' }}
                             </v-btn>
+                            
                         </v-col>
                     </v-row>
                 </v-container>
@@ -366,7 +366,7 @@ const getCourse = async (url) => {
         token_type.value = localStorage.getItem('token_type') || ''
         const { data } = await axios.get(url, {
             headers: {
-                Authorization: `${token_type.value || 'Bearer'} ${token.value || ''}`
+                Authorization: `${token_type.value || 'Bearer'} ${token.value || 'xy'}`
             }
         })
 

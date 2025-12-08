@@ -51,8 +51,11 @@ const handlePayment = async () => {
   if (!process.client) return
       token.value = localStorage.getItem('token') || ''
       token_type.value = localStorage.getItem('token_type') || ''
-
+try{
       currentSession.value = await jwtDecode(token.value) 
+}catch(e){
+  currentSession.value = {}
+}
       console.log("Sesión actual:", currentSession.value)
     
   if(currentSession.value?.name == null){

@@ -111,8 +111,12 @@ onMounted(() => {
 
     }
     
-   const token = localStorage.getItem('token') || ''
-        currentSession.value = jwtDecode(token) ?? {}
+   try {
+      const token = localStorage.getItem('token') || ''
+      currentSession.value = jwtDecode(token) ?? {}
+    } catch (error) {
+      
+    }
 
 
 console.log('Mounted lesson page with ID:', currentSession.value);
@@ -211,6 +215,10 @@ const copToUsd = (cop, rate) => cop / rate;
                 Ingresar
             </v-btn>
           <p class="mx-4" v-else>{{ currentSession?.name }}</p>
+          <v-btn         v-if="currentSession?.name"
+ variant="outlined" to="/escritorio"  class="text-capitalize font-weight-bold mx-4">
+          Mi Aprendizaje
+        </v-btn>
         <v-btn color="secondary" variant="elevated" class="text-capitalize" @click="currentSession?.name ? commentLesson(lesson) : toggleLogin()" >
           <v-icon start icon="mdi-comment-text-outline" size="small"></v-icon>
           Comentar
@@ -301,9 +309,28 @@ const copToUsd = (cop, rate) => cop / rate;
         gradient="to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.8)"
     ></v-img>
 
+<!-- SI ESTÁ LOGUEADO (tu vista previa original) -->
+    <div 
+        v-if="currentLesson?.isFree || cursoActual?.buyed"
+        class="position-absolute d-flex flex-column align-center"
+        style="z-index: 2"
+    >
+        <v-btn 
+            icon="mdi-play" 
+            size="x-large" 
+            color="primary" 
+            class="mb-2 pulse-animation"
+            elevation="6"
+            @click="videoPlaying = true"
+        ></v-btn>
+
+        <span class="font-weight-bold text-white text-shadow">
+            Vista Previa
+        </span>
+    </div>
     <!-- SI EL USUARIO NO ESTÁ LOGUEADO -->
     <div
-      v-if="!currentSession?.id"
+      v-else
       class="position-absolute d-flex flex-column align-center justify-center text-center px-6"
       style="z-index: 3"
     >
@@ -325,25 +352,7 @@ const copToUsd = (cop, rate) => cop / rate;
         </v-btn>
     </div>
 
-    <!-- SI ESTÁ LOGUEADO (tu vista previa original) -->
-    <div 
-        v-else
-        class="position-absolute d-flex flex-column align-center"
-        style="z-index: 2"
-    >
-        <v-btn 
-            icon="mdi-play" 
-            size="x-large" 
-            color="primary" 
-            class="mb-2 pulse-animation"
-            elevation="6"
-            @click="videoPlaying = true"
-        ></v-btn>
-
-        <span class="font-weight-bold text-white text-shadow">
-            Vista Previa
-        </span>
-    </div>
+    
 </div>
 
 
