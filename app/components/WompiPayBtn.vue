@@ -27,8 +27,8 @@ onMounted(() => {
   referencia.value = `${props.curso?.id}-${currentSession.value?.user_id}-${miRef}`
 
   // Crear texto para firma
-  const secret = "test_integrity_O4q6TAvX7XrInK5tfWHdXxRT2tL0T6GA"
-  //const secret = "prod_integrity_d2JyGsbZeEXpk44tfd9AcsZDidZEi7Qm"
+  //const secret = "test_integrity_O4q6TAvX7XrInK5tfWHdXxRT2tL0T6GA"
+  const secret = "prod_integrity_d2JyGsbZeEXpk44tfd9AcsZDidZEi7Qm"
   signatureText.value = `${referencia.value}${monto.value}${moneda}${secret}`
 
 console.log("Texto para firma:", signatureText.value)
@@ -51,6 +51,7 @@ const handlePayment = async () => {
   if (!process.client) return
       token.value = localStorage.getItem('token') || ''
       token_type.value = localStorage.getItem('token_type') || ''
+
 try{
       currentSession.value = await jwtDecode(token.value) 
 }catch(e){
@@ -61,6 +62,33 @@ try{
   if(currentSession.value?.name == null){
     showLoginModal.value = true;
     return;
+  }else{
+    if(props.curso?.precio_actual == 0){
+      // Inscribir gratis
+      loading.value = true;
+      try{
+        const { data } = await axios.post(URL_BASE_API + '/v1/public/pagos', {
+                  user_id: currentSession.value?.user_id,
+                  course_id: props.curso?.id,
+                  price: 0,
+                  status: 'APPROVED',
+                  id_transaction: 'FREE-' + crypto.randomUUID(),
+                  reference: referencia.value,
+                  detalle: 'Inscripción gratuita'
+              },{
+                headers: {
+          Authorization: `${localStorage.getItem('token_type') || 'Bearer'} ${localStorage.getItem('token') || ''}`
+        }
+              })
+              loading.value = false;
+              push.success({ title: 'Inscripción OK!', message: '¡Gracias por inscribirte! Ya puedes acceder al curso.', duration: 3000 })
+              navigateTo('/escritorio');
+      }catch(e){
+        loading.value = false;
+        push.error({ title: 'Upps!', message: 'Error en la inscripción gratuita', duration: 3000 })
+      }
+      return;
+    }
   }
   if (!widgetReady.value) {
     alert("Cargando pasarela…")
@@ -78,14 +106,14 @@ const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
     currency: moneda,
     amountInCents: monto.value,
     reference: referencia.value,
-    publicKey: "pub_test_jao85xojssDWrtxy5y47eDVwztdncXOk",
-    //publicKey: "pub_prod_lgpBi94hzAoBqn5vJvccHrIDlHwslVr9",
+    //publicKey: "pub_test_jao85xojssDWrtxy5y47eDVwztdncXOk",
+    publicKey: "pub_prod_lgpBi94hzAoBqn5vJvccHrIDlHwslVr9",
     signature: { integrity: hashHex }
   })
 
   checkout.open(result => {
-    console.log("Resultado del pago:", result)
-    console.log("Estado del pago:", result.transaction.status)
+    //console.log("Resultado del pago:", result)
+    //console.log("Estado del pago:", result.transaction.status)
     if (result.transaction.status === "APPROVED") {
     //window.location.href = "/escritorio"
     
@@ -107,7 +135,7 @@ const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 const savePayment = async(paymentData) => {
   loading.value = true;
   // Aquí puedes enviar paymentData al backend para guardarlo en la base de datos
-  console.log("Guardando pago en el backend:", paymentData)
+  //console.log("Guardando pago en el backend:", paymentData)
   const { data } = await axios.post(URL_BASE_API + '/v1/public/pagos', {
                 user_id: currentSession.value?.user_id,
                 course_id: props.curso?.id,
@@ -122,15 +150,15 @@ const savePayment = async(paymentData) => {
       }
             })
             loading.value = false;
-console.log("Pago guardado en el backend:", data)
+//console.log("Pago guardado en el backend:", data)
 }
 </script>
 
 <template>
-  <v-btn block color="yellow darken-2" size="x-large"
+  <v-btn block :color="curso?.precio_actual>0?'yellow darken-2':'green'" size="x-large"
     class="mb-3 font-weight-bold text-uppercase"
     elevation="4"
     @click="handlePayment">
-    Comprar Ahora
+    {{ props.curso?.precio_actual>0? 'Comprar Ahora':'Inscribirse Gratis' }}
   </v-btn>
 </template>

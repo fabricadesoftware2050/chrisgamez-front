@@ -14,16 +14,72 @@ export default defineNuxtConfig({
     app: {
         pageTransition: { name: "page", mode: "out-in" },
         head: {
-            title: "Academia Cristal - Aprende y Crece Con Nosotros",
-            meta: [
-                { charset: "utf-8" },
-                {
-                    name: "viewport",
-                    content: "width=device-width, initial-scale=1",
-                },
-            ],
-            link: [
-                { rel: "icon", type: "image/x-icon", href: "images/icono.png" },
+    title: "CHRIS GÁMEZ - CURSOS DE PROGRAMACIÓN",
+    meta: [
+        { charset: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+
+        // ⭐ SEO PRINCIPAL
+        {
+            hid: "description",
+            name: "description",
+            content:
+                "Chris Gámez Cursos: aprende programación desde cero con clases claras, prácticas y sin complicaciones. Domina Python, Laravel, Vue.js, FastAPI y más."
+        },
+
+        // ⭐ OPEN GRAPH (para compartir en Facebook / WhatsApp)
+        {
+            hid: "og:title",
+            property: "og:title",
+            content: "Chris Gámez - Cursos de Programación"
+        },
+        {
+            hid: "og:description",
+            property: "og:description",
+            content:
+                "Cursos prácticos y claros para aprender programación: Python, Laravel, Vue.js, FastAPI y tecnologías actuales."
+        },
+        {
+            hid: "og:image",
+            property: "og:image",
+            content: "/image.png" // desde /public o /assets
+        },
+        {
+            hid: "og:type",
+            property: "og:type",
+            content: "website"
+        },
+
+        // ⭐ TWITTER CARDS
+        {
+            hid: "twitter:card",
+            name: "twitter:card",
+            content: "summary_large_image"
+        },
+        {
+            hid: "twitter:title",
+            name: "twitter:title",
+            content: "Chris Gámez - Cursos de Programación"
+        },
+        {
+            hid: "twitter:description",
+            name: "twitter:description",
+            content:
+                "Aprende programación paso a paso con cursos claros y prácticos: Python, Laravel, Vue.js, FastAPI y más."
+        },
+        {
+            hid: "twitter:image",
+            name: "twitter:image",
+            content: "/image.png"
+        }
+    ],
+
+    link: [
+        {
+            rel: "icon",
+            type: "image/png",
+            href: "/image.png" // funciona en todas las rutas
+        },
                 // Bulma
                 {
                     //rel: "stylesheet",

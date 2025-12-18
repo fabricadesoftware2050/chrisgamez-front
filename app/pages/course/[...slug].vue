@@ -237,11 +237,10 @@
                         <v-col cols="12" md="6" class="d-flex align-center justify-end">
                             <div class="d-flex flex-column align-end mr-4" v-if="cursoActual?.buyed !== true">
                                 <span class="text-h6 font-weight-bold text-green lh-1">{{ formatCOP(cursoActual?.precio_actual|| 0) }}</span>
-                                <span class="text-h8 text-green">USD {{ formatCOP(copToUsd(cursoActual?.precio_anterior|| 0)) }}</span>
+                                <span class="text-h8 text-green">USD {{ cursoActual?.precio_actual>0?formatCOP(copToUsd(cursoActual?.precio_anterior|| 0)):'Gratis' }}</span>
                             </div>
 
-                            <v-btn variant="outlined" color="grey-lighten-1" class="mr-2 d-none d-sm-flex"
-                                icon="mdi-heart-outline"></v-btn>
+                            
 
                             <WompiPayBtn v-if="!loading && cursoActual?.buyed !== true" 
                                 :curso="cursoActual"

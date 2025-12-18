@@ -1,133 +1,160 @@
 <template>
-  <v-app-bar 
-    flat 
-    elevation="3" 
-    color="black" 
+  <v-app-bar
+    flat
+    elevation="3"
+    color="black"
     class="px-4"
-    :class="{ 'blurred': showLoginModal }"
     theme="dark"
   >
-    <v-container class="d-flex align-center py-0" style="max-width: 1200px;">
-      
-      <nuxt-link to="/" class="d-flex align-center text-decoration-none mr-8" style="gap: 10px;">
+    <v-container
+      class="d-flex align-center justify-space-between py-0"
+      style="max-width: 1200px;"
+    >
+
+      <!-- LOGO -->
+      <nuxt-link
+        to="/"
+        class="d-flex align-center text-decoration-none"
+        style="gap: 10px;"
+      >
         <v-avatar size="40" rounded="0">
-          <v-img 
-            src="https://agenciacristal.com/wp-content/uploads/2025/01/cropped-logofinal_otro-192x192.png" 
-            contain
-          ></v-img>
+          <v-img src="~/assets/img/image.png" contain></v-img>
         </v-avatar>
-        <span class="font-weight-bold text-white text-h6">
+
+        <span class="font-weight-bold text-white text-h6 hidden-sm-and-down">
           CHRIS GÁMEZ
         </span>
       </nuxt-link>
 
-      <v-spacer class="hidden-md-and-up"></v-spacer>
-
-      <div class="d-flex justify-center hidden-sm-and-down align-center gap-2">
-        <v-btn 
-          to="/" 
-          variant="text" 
-          class="text-capitalize text-body-1 font-weight-regular text-white" 
-        >
-          Inicio
-        </v-btn>
-
-        <v-btn 
-          to="/cursos" 
-          variant="text" 
-          class="text-capitalize text-body-1 font-weight-regular text-grey-lighten-1" 
-        >
-          Cursos
-        </v-btn>
-
-        <v-btn 
-          to="/blog" 
-          variant="text" 
-          class="text-capitalize text-body-1 font-weight-regular text-grey-lighten-1" 
-        >
-          Publicaciones
-        </v-btn>
-
+      <!-- MENÚ DESKTOP -->
+      <div class="hidden-sm-and-down d-flex align-center" style="gap: 16px;">
+        <v-btn to="/" variant="text" class="text-white">Inicio</v-btn>
+        <v-btn to="/cursos" variant="text" class="text-grey-lighten-1">Cursos</v-btn>
+        <v-btn to="/blog" variant="text" class="text-grey-lighten-1">Publicaciones</v-btn>
       </div>
 
-      <v-spacer class="hidden-sm-and-down"></v-spacer>
-
-<v-btn         v-if="currentSession?.name"
- variant="outlined" to="/escritorio"  class="text-capitalize font-weight-bold mx-4">
-          Mi Aprendizaje
+      <!-- ACCIONES DESKTOP -->
+      <div class="hidden-sm-and-down d-flex align-center" style="gap: 12px;">
+        <!-- NO LOGUEADO -->
+        <v-btn
+          v-if="!currentSession?.name"
+          variant="flat"
+          color="white"
+          class="text-black px-6"
+          rounded="pill"
+          @click="toggleLogin"
+        >
+          <v-icon start size="small">mdi-login</v-icon>
+          Ingresar
         </v-btn>
-      <v-btn 
-        v-if="!currentSession?.name"
-        variant="flat" 
-        color="white"
-        class="text-capitalize font-weight-bold ml-4 text-black px-6" 
-        rounded="pill"
-        @click="toggleLogin" 
-      >
-        <v-icon start size="small">mdi-login</v-icon>
-        Ingresar
-      </v-btn>
 
-      <v-btn 
-      v-if="currentSession?.name"
-          color="primary-custom" 
-          variant="flat" 
-          class="text-capitalize text-white font-weight-bold"
+        <!-- LOGUEADO -->
+        <v-btn
+          v-if="currentSession?.name"
+          color="primary-custom"
+          variant="flat"
           prepend-icon="mdi-account-circle"
         >
           {{ currentSession?.name }}
         </v-btn>
-        <v-btn 
+
+        <v-btn
           v-if="currentSession?.name"
           @click="logout"
-          color="red lighten-1" 
-          variant="flat" 
-          class="text-capitalize text-white font-weight-bold mx-4"
+          color="red"
+          variant="flat"
           prepend-icon="mdi-logout"
         >
           Salir
         </v-btn>
+      </div>
 
-
-        
+      <!-- BOTÓN HAMBURGUESA (MÓVIL) -->
+      <v-app-bar-nav-icon
+        class="hidden-md-and-up"
+        @click="drawer = true"
+      ></v-app-bar-nav-icon>
 
     </v-container>
   </v-app-bar>
+
+  <!-- DRAWER MOBILE -->
+  <v-navigation-drawer
+    v-model="drawer"
+    temporary
+    color="black"
+  >
+    <v-list-item>
+      <v-list-item-title class="text-h6 text-white">Menú</v-list-item-title>
+    </v-list-item>
+
+    <v-divider></v-divider>
+
+    <!-- Menú -->
+    <v-list>
+      <v-list-item to="/" title="Inicio" />
+      <v-list-item to="/cursos" title="Cursos" />
+      <v-list-item to="/blog" title="Publicaciones" />
+    </v-list>
+
+    <v-divider></v-divider>
+
+    <div class="pa-4">
+
+      <!-- LOGIN MOBILE -->
+      <v-btn
+        v-if="!currentSession?.name"
+        block
+        color="white"
+        class="text-black mb-2"
+        @click="toggleLogin"
+      >
+        Ingresar
+      </v-btn>
+
+      <!-- USUARIO LOGUEADO -->
+      <v-btn
+        v-if="currentSession?.name"
+        block
+        color="primary-custom"
+        class="mb-2"
+        prepend-icon="mdi-account-circle"
+      >
+        {{ currentSession?.name }}
+      </v-btn>
+
+      <v-btn
+        v-if="currentSession?.name"
+        block
+        color="red"
+        prepend-icon="mdi-logout"
+        @click="logout"
+      >
+        Salir
+      </v-btn>
+
+    </div>
+  </v-navigation-drawer>
 
   <LoginModal />
 </template>
 
 <script setup>
-import { jwtDecode } from 'jwt-decode';
-import { push } from 'notivue'
 import { useRouter } from 'vue-router'
 
-const showLoginModal = useLoginModal();
-const currentSession = useSession();
+const drawer = ref(false)
+const currentSession = useSession()
+const showLoginModal = useLoginModal()
 const router = useRouter()
+
 function toggleLogin() {
-  showLoginModal.value = !showLoginModal.value;
+  showLoginModal.value = true
 }
 
-const logout = () => {
-  localStorage.clear();
-  currentSession.value = {};
+function logout() {
+  localStorage.removeItem('token')
+  localStorage.removeItem('token_type')
+  currentSession.value = {}
   router.push('/')
-};
-
-onMounted(() => {
-   const token = localStorage.getItem('token') || ''
-       // currentSession.value = jwtDecode(token) ?? {}
-
-});
-</script>
-
-<style scoped>
-/* Opcional: Si quieres que el menú se vea 'vidrioso' (glassmorphism) en lugar de transparente total */
-/*
-.v-app-bar {
-  background: rgba(0, 0, 0, 0.2) !important;
-  backdrop-filter: blur(10px);
 }
-*/
-</style>
+</script>

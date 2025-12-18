@@ -1,5 +1,6 @@
 <template>
   <video
+  style="z-index: 3000;"
     ref="videoRef"
     preload="auto"
     playsinline

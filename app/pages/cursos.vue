@@ -108,8 +108,8 @@
                 <span class="text-caption font-weight-bold grey--text text--lighten-1 text-uppercase ls-1">Inversión</span>
                 
                 <div class="text-right">
-                    <template v-if="formatCOP(curso.precio_actual) === 0">
-                         <span class="text-h6 font-weight-black green--text text--accent-4">
+                    <template v-if="curso.precio_actual == 0">
+                         <span class="text-h6 font-weight-black primary--text" style="color:mediumseagreen">
                             100% GRATIS
                          </span>
                     </template>

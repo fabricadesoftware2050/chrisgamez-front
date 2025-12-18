@@ -72,11 +72,10 @@
 .footer-main-section {
   background: #111A20 !important;
   padding-top: 50px;
-  padding-bottom: 50px;
   border-top: 2px solid rgba(255, 255, 255, 0.05);
 }
 .footer-bottom {
-    position: fixed;
+    position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;

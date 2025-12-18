@@ -18,4 +18,10 @@ import { Notivue, Notification, push } from 'notivue'
 [v-cloak] {
   display: none !important;
 }
+.notivue-middle-right {
+    top: 50% !important;
+    right: 50% !important;
+    transform: translate(50%, -50%) !important;
+}
+
 </style>

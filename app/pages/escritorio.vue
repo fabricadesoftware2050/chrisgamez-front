@@ -122,7 +122,9 @@
               v-for="course in cursosCompletados"
               :key="course?.id"
               class="completed-list-item mb-1 py-3"
+              
             >
+           
               <template v-slot:prepend>
                 <v-icon color="#66BB6A" class="mr-4">mdi-check-decagram</v-icon>
                 <v-img 
@@ -144,7 +146,7 @@
               </v-list-item-subtitle>
 
               <template v-slot:append>
-                <v-btn variant="outlined" size="small" color="white" class="text-capitalize">
+                <v-btn @click="navigateTo('/certificado/'+course?.id)" variant="outlined" size="small" color="white" class="text-capitalize">
                   Ver Certificado
                 </v-btn>
               </template>
@@ -232,7 +234,8 @@ onMounted(() => {
       currentSession.value = jwtDecode(token.value) ?? {}
     } catch (error) {
       push.warning({ title: 'Upps!', message: 'Su sesión expiró' })
-      localStorage.clear()
+      localStorage.removeItem('token')
+      localStorage.removeItem('token_type')
       router.push('/')
     }
 

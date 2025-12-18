@@ -19,7 +19,7 @@
             <h1 class="text-h3 text-sm-h1 font-weight-black mb-4 lh-tight">
               Deja de copiar tutoriales.
               <br />
-              <span class="gradient-text">Conviértete en Dev Top 1%.</span>
+              <span class="gradient-text">Aprende Bien Paso a Paso.</span>
             </h1>
             
             <p class="text-h6 text-grey-lighten-1 mb-8 font-weight-light" style="max-width: 600px; line-height: 1.5;">
@@ -42,9 +42,12 @@
                 color="white"
                 size="x-large"
                 class="px-8"
-                prepend-icon="mdi-discord"
+                prepend-icon="mdi-whatsapp"
+                href="https://chat.whatsapp.com/GZfRju8dV0SF2l6MTRrHnB?mode=hqrc"
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                Únete al Discord
+                Únete al Grupo
               </v-btn>
             </div>
 
@@ -142,7 +145,7 @@
             <div class="text-overline text-cyan-accent-3 font-weight-bold">Librería Premium</div>
             <h2 class="text-h4 font-weight-bold">Cursos Más Vendidos</h2>
           </div>
-          <v-btn variant="text" color="white" append-icon="mdi-arrow-right">Ver todos</v-btn>
+          <v-btn variant="text" to="/cursos" color="white" append-icon="mdi-arrow-right">Ver todos</v-btn>
         </div>
 
         <v-row>
