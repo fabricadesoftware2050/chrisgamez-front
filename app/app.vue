@@ -4,10 +4,10 @@ import { Notivue, Notification, push } from 'notivue'
 <template>
   <NuxtLayout>
     <v-app>
-      <v-main class="pb-10">
+      <v-main>
         <NuxtPage :key="$route.fullPath"  />
-        <Footer />
       </v-main>
+        <Footer />
     </v-app>
   </NuxtLayout>
   <Notivue v-slot="item">

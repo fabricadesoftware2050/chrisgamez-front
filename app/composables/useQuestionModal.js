@@ -1,0 +1,1 @@
+export const useQuestionModal = () => useState('questionModal', () => false);
