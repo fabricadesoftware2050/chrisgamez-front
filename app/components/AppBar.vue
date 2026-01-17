@@ -159,7 +159,6 @@ onMounted(() => {
       push.warning({ title: 'Upps!', message: 'Su sesión expiró' })
       localStorage.removeItem('token')
       localStorage.removeItem('token_type')
-      router.push('/')
     }
 });
 </script>
